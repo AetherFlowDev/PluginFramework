@@ -1,0 +1,105 @@
+name: Build, Test & Deploy Nuget Package
+
+on:
+  pull_request:
+    branches:
+      - '*/develop'
+      - 'main'
+  push:
+    branches:
+      - '*/develop'
+      - 'main'
+  release:
+    types: 
+      - published
+
+env:
+  NuGetDirectory: ${{ github.workspace}}/nuget
+  NugetProjectPath: AetherFlow.Framework/AetherFlow.Framework.csproj
+  ValidationExcludedRules: 101,111,112
+
+jobs:
+  run_tests:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Project
+      run: dotnet build --configuration Release
+
+    - name: Install Coverlet
+      run: dotnet tool install --global coverlet.console
+      shell: pwsh
+
+    - name: Run unit tests with coverage
+      run: |
+        $testDlls = Get-ChildItem -Path . -Recurse -Include '*Tests.dll' -Filter '*.dll' | Where-Object { $_.FullName -like "*\bin\*" } | Select-Object -ExpandProperty FullName
+        foreach ($dll in $testDlls) {
+          Write-Output "Running tests on: $dll"
+          $dllName = [System.IO.Path]::GetFileNameWithoutExtension($dll)
+          coverlet $dll --target "dotnet" --targetargs "test $dll" --format "opencover" --output "./$dllName.coverage.opencover.xml" --exclude "[*.Tests]*"
+        }
+      shell: pwsh
+
+    - name: Report code coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: |
+          **/*.coverage.opencover.xml
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  create_nuget:
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Pack Solution
+      run: dotnet pack ${{ env.NugetProjectPath }} --configuration Release --output ${{ env.NuGetDirectory }} -p:PackageVersion=${{ github.event.release.tag_name }}
+      
+    - uses: actions/upload-artifact@v3
+      with:
+        name: nuget
+        if-no-files-found: error
+        retention-days: 7
+        path: ${{ env.NuGetDirectory }}/*.nupkg
+
+  validate_nuget:
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    needs: [ create_nuget ]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Install nuget validator
+        run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
+
+      - name: Validate package
+        run: meziantou.validate-nuget-package (Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") --excluded-rule-ids ${{ env.ValidationExcludedRules }}
+  
+  publish_nuget:
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    needs: [ validate_nuget, run_tests ]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Publish NuGet Package
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+            dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
