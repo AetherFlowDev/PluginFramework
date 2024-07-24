@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using AetherFlow.Framework.Helpers;
 using AetherFlow.Framework.Interfaces;
 using Microsoft.Xrm.Sdk;
@@ -10,9 +11,9 @@ namespace AetherFlow.Framework
         protected static IDataverseContainer Container;
         protected static string SecureConfig;
         protected static string UnSecureConfig;
-        protected bool RunActions = true;
         
         private JsonContractSerializer _serializer;
+        private Assembly _assembly;
 
         public ActionExecutor(IDataverseContainer container, string secure, string unSecure)
         {
@@ -21,34 +22,38 @@ namespace AetherFlow.Framework
             UnSecureConfig = unSecure;
         }
 
-        public ActionExecutor LoadDependenciesFrom(string rootNamespace)
+        public ActionExecutor FromAssembly(Assembly assembly)
         {
-            Container.Initialize(GetType().Assembly, rootNamespace);
-            return this;
-        }
-        
-        public ActionExecutor LoadDependenciesFrom(string[] rootNamespaces)
-        {
-            Container.Initialize(GetType().Assembly, rootNamespaces);
+            _assembly = assembly;
             return this;
         }
 
-        public ActionExecutor HasSecureConfig<T>() where T : new()
+        public ActionExecutor LoadDependencies(string rootNamespace)
+        {
+            Container.Initialize(_assembly ?? GetType().Assembly, rootNamespace);
+            return this;
+        }
+        
+        public ActionExecutor LoadDependencies(string[] rootNamespaces)
+        {
+            Container.Initialize(_assembly ?? GetType().Assembly, rootNamespaces);
+            return this;
+        }
+
+        public ActionExecutor UseSecureConfig<T>() where T : new()
         {
             Container.Add<T>(GetSerializer().Deserialize<T>(SecureConfig));
             return this;
         }
 
-        public ActionExecutor HasUnSecureConfig<T>() where T : new()
+        public ActionExecutor UseUnSecureConfig<T>() where T : new()
         {
             Container.Add<T>(GetSerializer().Deserialize<T>(UnSecureConfig));
             return this;
         }
 
-        public ActionExecutor RunAction<T>() where T : IPluginAction
-        {
-            if (!RunActions) return this;
-            
+        public ActionExecutor Run<T>() where T : IPluginAction
+        {           
             var action = Container.Get<T>();
             action.Execute();
             return this;
@@ -59,9 +64,9 @@ namespace AetherFlow.Framework
             return _serializer ?? (_serializer = new JsonContractSerializer());
         }
 
-        public ActionExecutor OnlyIf(Func<IPluginExecutionContext, bool> shouldRun)
+        public ActionExecutor RunIf<T>(Func<IPluginExecutionContext, bool> shouldRun) where T : IPluginAction
         {
-            RunActions = shouldRun(Container.Get<IPluginExecutionContext>());
+            if (shouldRun(Container.Get<IPluginExecutionContext>())) Run<T>();
             return this;
         }
     }

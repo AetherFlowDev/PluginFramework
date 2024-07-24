@@ -8,11 +8,11 @@ namespace AetherFlow.Framework.Tests.Content.Plugins
         public UpdateTargetContact(string unSecure, string secure) : base(unSecure, secure) { }
         public UpdateTargetContact() { }
 
-        protected override void Configure(ActionExecutor builder) => 
+        protected override void Configure(ActionExecutor builder) =>
             builder
-                .LoadDependenciesFrom("AetherFlow.Framework.Tests.Content.Interfaces")
-                .HasSecureConfig<ContactPluginConfig>()
-                .OnlyIf(context => context.MessageName == "Create")
-                .RunAction<UpdateTargetContactAction>();
+                .FromAssembly(GetType().Assembly)
+                .LoadDependencies("AetherFlow.Framework.Tests.Content.Interfaces")
+                .UseSecureConfig<ContactPluginConfig>()
+                .RunIf<UpdateTargetContactAction>(context => context.MessageName == "Create");
     }
 }
