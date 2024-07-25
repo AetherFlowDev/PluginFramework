@@ -8,6 +8,6 @@ namespace AetherFlow.Xml.Framework.Core.Interfaces
     public interface IQueryPager
     {
         EntityCollection Page(QueryExpression qe, int perPage);
-        EntityCollection PageInQuery(string entityName, string fieldName, List<Guid> values, ColumnSet columnSet, int perPage);
+        EntityCollection PageInQuery(string entityName, string fieldName, object[] values, ColumnSet columnSet, int perPage);
     }
 }

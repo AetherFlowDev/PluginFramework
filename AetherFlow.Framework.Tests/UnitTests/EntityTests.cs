@@ -5,6 +5,7 @@ using AetherFlow.Framework.Tests.Setup.Models;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using Microsoft.Xrm.Sdk;
 
 namespace AetherFlow.Framework.Tests.UnitTests
 {
@@ -112,6 +113,31 @@ namespace AetherFlow.Framework.Tests.UnitTests
             Assert.That(entityReference, Is.Not.Null);
             Assert.That(entityReference.Id, Is.EqualTo(_contact.Id));
             Assert.That(entityReference.LogicalName, Is.EqualTo(Contact.LogicalName));
+        }
+
+        [Test]
+        public void EnsureCannotGetReferenceFromNewEntity()
+        {
+            var contact = _contactDal.New();
+            Assert.Throws<Exception>(() => contact.GetReference());
+        }
+
+        [Test]
+        public void EnsureCanSetIdManually()
+        {
+            var contact = _contactDal.New();
+            contact.Id = _contact.Id;
+            contact.FirstName = "EnsureCanSetIdManually";
+
+            Assert.DoesNotThrow(() => contact.Save());
+        }
+
+        [Test]
+        public void EnsureCanGetOptionSetValue()
+        {
+            _contact.StateCode = Contact.Choices.StateCode.Active;
+            _contact.Save();
+            Assert.That(_contact.StateCode, Is.EqualTo(Contact.Choices.StateCode.Active));
         }
 
         [Test]
@@ -231,6 +257,46 @@ namespace AetherFlow.Framework.Tests.UnitTests
 
             Assert.That(contact.IsDirty(), Is.False);
             Assert.That(contact.FirstName, Is.Not.EqualTo("EnsureGetRemovesChanges"));
+        }
+
+        [Test]
+        public void EnsureCanSetCorrectLookup()
+        {
+            Assert.DoesNotThrow(() =>
+                _contact.Account = new EntityReference("account", Guid.NewGuid())
+            );
+        }
+
+        [Test]
+        public void EnsureCannotSetIncorrectLookup()
+        {
+            Assert.Throws<Exception>(() =>
+                _contact.Account = new EntityReference("settings", Guid.NewGuid())
+            );
+        }
+
+        [Test]
+        [TestCase(Contact.Fields.FirstName, 1033, "First Name")]
+        [TestCase(Contact.Fields.FirstName, 1088, "Le First Name")]
+        [TestCase(Contact.Fields.FirstName, 9999, "FirstName")]
+        public void EnsureCanGetLabelFromField(string name, int language, string expected)
+        {
+            Assert.That(
+                Contact.Fields.GetLabel(Contact.Fields.FirstName),
+                Is.EqualTo("First Name")
+            );
+        }
+
+        [Test]
+        [TestCase(Contact.Choices.StateCode.LongerNameCode, 1033, "Longer Name Code")]
+        [TestCase(Contact.Choices.StateCode.Active, 1088, "Le Active")]
+        [TestCase(Contact.Choices.StateCode.LongerNameCode, 9999, "LongerNameCode")]
+        public void EnsureCanGetLabelFromOptionSet(Contact.Choices.StateCode stateCode, int languageCode, string expected)
+        {
+            Assert.That(
+                Contact.Choices.GetStateCodeLabel(stateCode, languageCode),
+                Is.EqualTo(expected)
+            );
         }
     }
 }

@@ -7,7 +7,7 @@ namespace AetherFlow.Framework.Tests.Setup.Models
 {
     public class Contact : EntityBase
     {
-        public static new readonly string LogicalName = "contact";
+        public new static readonly string LogicalName = "contact";
 
         public static readonly string SchemaName = "Contact";
         public static readonly string IdAttribute = "contactid";
@@ -17,11 +17,11 @@ namespace AetherFlow.Framework.Tests.Setup.Models
         public Contact(Entity record, IOrganizationService service) : base(LogicalName, record, service) { }
         public Contact(IOrganizationService service = null) : base(LogicalName, service) { }
         public Contact(Guid id, IOrganizationService service) : base(LogicalName, id, service) { }
-
+        
         public static class Fields
         {
-            [Label(1033, "Full Name")]
-            [Label(1088, "Le Full Name")]
+            [Label(1033, "First Name")]
+            [Label(1088, "Le First Name")]
             public const string FirstName = "firstname";
 
             [Label(1033, "State")]
@@ -32,8 +32,8 @@ namespace AetherFlow.Framework.Tests.Setup.Models
             [Label(1088, "Le Account")]
             public const string Account = "accountid";
 
-            public static string GetLabel(string fieldName, int languageCode = 1033)
-                => FieldHelper.GetFieldLabel(typeof(Fields), fieldName, languageCode);
+            public static string GetLabel(string fieldValue, int languageCode = 1033)
+                => EntityLabel.ForField(typeof(Fields), fieldValue, languageCode);
         }
 
         public static class Choices
@@ -47,8 +47,15 @@ namespace AetherFlow.Framework.Tests.Setup.Models
 
                 [Label(1033, "Inactive")]
                 [Label(1088, "Le Inactive")]
-                Inactive = 1
+                Inactive = 1,
+
+                [Label(1033, "Longer Name Code")]
+                [Label(1088, "Le Longer Name Code")]
+                LongerNameCode = 2
             }
+
+            public static string GetStateCodeLabel(StateCode stateCode, int languageCode = 1033)
+                => EntityLabel.ForEnum(typeof(StateCode), stateCode.ToString(), languageCode);
         }
 
         public string FirstName

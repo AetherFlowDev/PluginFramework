@@ -1,10 +1,6 @@
-﻿using AetherFlow.Framework.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AetherFlow.FakeXrmEasy.Plugins;
 using AetherFlow.Framework.Testing.Attributes.Seeders;
 using AetherFlow.Framework.Testing.Interfaces;
 using Microsoft.Xrm.Sdk;
@@ -13,7 +9,7 @@ namespace AetherFlow.Framework.Testing.Extensions
 {
     public static class SeederExtension
     {
-        public static void UsesSeeders(this SpecificationBase spec)
+        public static void RunSeeders(this SpecificationBase spec)
         {
             // Get the services required
             var context = spec.GetXrmFakedContext();

@@ -14,7 +14,7 @@ namespace AetherFlow.Framework.Tests.UnitTests
             this.UseAssembly(GetType().Assembly);
             this.LoadDependencies("AetherFlow.Framework.Tests.Setup.Interfaces");
             this.UseFakeXrmEasy();
-            this.UsesSeeders();
+            this.RunSeeders();
             RunSpecification();
         }
 
@@ -40,7 +40,14 @@ namespace AetherFlow.Framework.Tests.UnitTests
             var context = this.GetXrmFakedContext();
             Assert.That((int)context.Data["setting"].First().Value.Attributes["value"], Is.EqualTo(0));
             Assert.That((int)context.Data["secondary"].First().Value.Attributes["value"], Is.EqualTo(1));
-            Assert.That((int)context.Data["noorder"].First().Value.Attributes["value"], Is.EqualTo(2));
+            Assert.That((int)context.Data["noorder"].First().Value.Attributes["value"], Is.EqualTo(102));
+        }
+
+        [Test]
+        public void EnsureManyRecordsCreated()
+        {
+            var context = this.GetXrmFakedContext();
+            Assert.That(context.Data["large"].Count, Is.EqualTo(100));
         }
     }
 }

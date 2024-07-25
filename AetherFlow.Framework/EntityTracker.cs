@@ -72,7 +72,7 @@ namespace AetherFlow.Framework
 
             var value = this[attributeName];
             if (value is OptionSetValue osv)
-                return (T)Convert.ChangeType(osv.Value, typeof(T));
+                return (T)(object)osv.Value;
 
             return null;
         }

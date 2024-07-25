@@ -49,7 +49,7 @@ namespace AetherFlow.Framework.Processors
             return records;
         }
 
-        public EntityCollection PageInQuery(string entityName, string fieldName, List<Guid> values, ColumnSet columnSet, int perPage)
+        public EntityCollection PageInQuery(string entityName, string fieldName, object[] values, ColumnSet columnSet, int perPage)
         {
             // We need to setup an IN query.
             // This needs to use a dynamic condition, as defined in the parameters 
@@ -61,15 +61,15 @@ namespace AetherFlow.Framework.Processors
             };
 
             // We might not have anything to do!
-            if (values.Count == 0)
+            if (values.Length == 0)
                 return ec;
 
             // Start the loop!
             while (true)
             {
                 // Setup the query
-                var guids = values.Skip(page * perPage).Take(perPage);
-                var enumerable = guids as Guid[] ?? guids.ToArray();
+                var data = values.Skip(page * perPage).Take(perPage);
+                var enumerable = data as object[] ?? data.ToArray();
                 if (!enumerable.Any())
                     break;
 
@@ -94,7 +94,7 @@ namespace AetherFlow.Framework.Processors
                 page++;
 
                 // Ensure we have not hit the end
-                if (page * perPage > values.Count)
+                if (page * perPage > values.Length)
                     break;
             }
 

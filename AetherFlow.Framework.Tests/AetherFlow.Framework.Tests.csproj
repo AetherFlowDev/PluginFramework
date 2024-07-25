@@ -26,6 +26,7 @@
   <ItemGroup>
     <PackageReference Include="AetherFlow.FakeXrmEasy.Plugins" Version="1.0.0-rc" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
