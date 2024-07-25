@@ -1,10 +1,9 @@
 ﻿using AetherFlow.Framework.Tests.Setup.Interfaces.DataAccess;
 using AetherFlow.Framework.Tests.Setup.Models;
 using AetherFlow.Framework.Tests.Support.SpecificationExtensions;
-using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
+using System;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
 
 namespace AetherFlow.Framework.Tests.UnitTests
 {
@@ -35,7 +34,7 @@ namespace AetherFlow.Framework.Tests.UnitTests
         public override void Act()
         {
             _contact = _contactDal.New();
-            _contact.FirstName = "FirsName";
+            _contact.FirstName = "FirstName";
             _contact.Save();
         }
 
@@ -192,6 +191,45 @@ namespace AetherFlow.Framework.Tests.UnitTests
             contact.Get(new string[] { Contact.Fields.FirstName });
 
             Assert.That(contact.FirstName, Is.EqualTo(_contact.FirstName));
+        }
+
+        [Test]
+        public void EnsureExceptionThrownWhenSavingAndNoServiceObject()
+        {
+            var contact = new Contact();
+            contact.FirstName = "Test";
+            Assert.Throws<Exception>(() => contact.Save());
+        }
+
+        [Test]
+        public void EnsureGettingDataFromNoIdDoesNothing()
+        {
+            var contact = _contactDal.New();
+            contact.Get(new string[] { Contact.Fields.FirstName });
+            Assert.That(contact.FirstName, Is.Null);
+        }
+
+        [Test]
+        public void EnsureDataIsUpdatedWithGetRequest()
+        {
+            var contact = _contactDal.New(_contact.Id.Value);
+            contact.FirstName = "EnsureDataIsUpdateWithGetRequest";
+            contact.Save();
+
+            _contact.Get(new string[] { Contact.Fields.FirstName });
+
+            Assert.That(_contact.FirstName, Is.EqualTo(contact.FirstName));
+        }
+
+        [Test]
+        public void EnsureGetRemovesChanges()
+        {
+            var contact = _contactDal.New(_contact.Id.Value);
+            contact.FirstName = "EnsureGetRemovesChanges";
+            contact.Get(new string[] { Contact.Fields.FirstName });
+
+            Assert.That(contact.IsDirty(), Is.False);
+            Assert.That(contact.FirstName, Is.Not.EqualTo("EnsureGetRemovesChanges"));
         }
     }
 }
