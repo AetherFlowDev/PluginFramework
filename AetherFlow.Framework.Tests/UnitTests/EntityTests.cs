@@ -5,6 +5,7 @@ using AetherFlow.Framework.Tests.Setup.Models;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using AetherFlow.Framework.Helpers;
 using Microsoft.Xrm.Sdk;
 
 namespace AetherFlow.Framework.Tests.UnitTests
@@ -313,6 +314,24 @@ namespace AetherFlow.Framework.Tests.UnitTests
             Assert.That(entity.Attributes[Contact.Fields.FirstName], Is.EqualTo(_contact.FirstName));
             Assert.That(entity.Attributes.ContainsKey(Contact.Fields.StateCode), Is.True);
             Assert.That(((OptionSetValue)entity.Attributes[Contact.Fields.StateCode]).Value, Is.EqualTo((int)_contact.StateCode));
+        }
+
+        [Test]
+        public void EnsureCanGetDefaultEnumValue()
+        {
+            Assert.That(
+                EntityHelper.GetDefaultValue<Contact.Choices.StateCode>(), 
+                Is.EqualTo(Contact.Choices.StateCode.Active)
+            );
+        }
+
+        [Test]
+        public void EnsureGettingEnumWithNoDefaultIsNull()
+        {
+            Assert.That(
+                EntityHelper.GetDefaultValue<Contact.Choices.StatusCode>(),
+                Is.Null
+            );
         }
     }
 }

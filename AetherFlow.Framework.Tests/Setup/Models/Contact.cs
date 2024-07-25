@@ -33,7 +33,7 @@ namespace AetherFlow.Framework.Tests.Setup.Models
             public const string Account = "accountid";
 
             public static string GetLabel(string fieldValue, int languageCode = 1033)
-                => EntityLabel.ForField(typeof(Fields), fieldValue, languageCode);
+                => EntityHelper.GetFieldLabel(typeof(Fields), fieldValue, languageCode);
         }
 
         public static class Choices
@@ -53,9 +53,24 @@ namespace AetherFlow.Framework.Tests.Setup.Models
                 [Label(1088, "Le Longer Name Code")]
                 LongerNameCode = 2
             }
+            
+            public enum StatusCode
+            {
+                [Label(1033, "Active")]
+                [Label(1088, "Le Active")]
+                Active = 0,
+
+                [Label(1033, "Inactive")]
+                [Label(1088, "Le Inactive")]
+                Inactive = 1,
+
+                [Label(1033, "Longer Name Code")]
+                [Label(1088, "Le Longer Name Code")]
+                LongerNameCode = 2
+            }
 
             public static string GetStateCodeLabel(StateCode stateCode, int languageCode = 1033)
-                => EntityLabel.ForEnum(typeof(StateCode), stateCode.ToString(), languageCode);
+                => EntityHelper.GetEnumLabel(typeof(StateCode), stateCode.ToString(), languageCode);
         }
 
         public string FirstName
