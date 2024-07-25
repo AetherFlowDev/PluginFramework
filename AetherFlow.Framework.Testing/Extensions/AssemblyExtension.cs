@@ -1,7 +1,6 @@
-﻿using AetherFlow.Framework.Interfaces;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace AetherFlow.Framework.Tests.Support.SpecificationExtensions
+namespace AetherFlow.Framework.Testing.Extensions
 {
     public static class AssemblyExtension
     {

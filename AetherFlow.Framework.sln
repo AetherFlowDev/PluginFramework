@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AetherFlow.Framework", "AetherFlow.Framework\AetherFlow.Framework.csproj", "{AD3A6A54-419C-46C0-960C-C2C7ABD6C310}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AetherFlow.Framework", "AetherFlow.Framework\AetherFlow.Framework.csproj", "{AD3A6A54-419C-46C0-960C-C2C7ABD6C310}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AetherFlow.Framework.Tests", "AetherFlow.Framework.Tests\AetherFlow.Framework.Tests.csproj", "{8A7BC527-6415-4A4B-AD05-B9B89604B94D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AetherFlow.Framework.Testing", "AetherFlow.Framework.Testing\AetherFlow.Framework.Testing.csproj", "{6E24FFCC-5BF8-4847-A50D-6BFB0BDE94E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8A7BC527-6415-4A4B-AD05-B9B89604B94D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A7BC527-6415-4A4B-AD05-B9B89604B94D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A7BC527-6415-4A4B-AD05-B9B89604B94D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E24FFCC-5BF8-4847-A50D-6BFB0BDE94E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E24FFCC-5BF8-4847-A50D-6BFB0BDE94E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E24FFCC-5BF8-4847-A50D-6BFB0BDE94E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E24FFCC-5BF8-4847-A50D-6BFB0BDE94E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

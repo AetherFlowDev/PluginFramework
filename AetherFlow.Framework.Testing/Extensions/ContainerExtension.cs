@@ -1,10 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using AetherFlow.Framework.Interfaces;
 using AetherFlow.Framework.Processors;
 using AetherFlow.Xml.Framework.Core.Interfaces;
 
-namespace AetherFlow.Framework.Tests.Support.SpecificationExtensions
+namespace AetherFlow.Framework.Testing.Extensions
 {
     public static class ContainerExtension
     {

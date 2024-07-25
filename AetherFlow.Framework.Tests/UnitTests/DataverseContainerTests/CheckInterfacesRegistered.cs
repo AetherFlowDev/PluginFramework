@@ -1,5 +1,5 @@
-﻿using AetherFlow.Framework.Interfaces;
-using AetherFlow.Framework.Tests.Support.SpecificationExtensions;
+﻿using AetherFlow.Framework.Testing;
+using AetherFlow.Framework.Testing.Extensions;
 using NUnit.Framework;
 
 namespace AetherFlow.Framework.Tests.UnitTests.DataverseContainerTests

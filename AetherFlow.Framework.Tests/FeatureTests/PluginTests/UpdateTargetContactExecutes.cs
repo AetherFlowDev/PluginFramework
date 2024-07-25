@@ -1,12 +1,13 @@
 ﻿using System;
 using AetherFlow.FakeXrmEasy.Plugins;
 using AetherFlow.Framework.Helpers;
+using AetherFlow.Framework.Testing;
+using AetherFlow.Framework.Testing.Extensions;
 using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
 using AetherFlow.Framework.Tests.Setup.Models;
 using AetherFlow.Framework.Tests.Setup.Actions.Config;
 using AetherFlow.Framework.Tests.Setup.Plugins;
-using AetherFlow.Framework.Tests.Support.SpecificationExtensions;
 
 namespace AetherFlow.Framework.Tests.FeatureTests.PluginTests
 {

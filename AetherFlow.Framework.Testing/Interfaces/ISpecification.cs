@@ -1,4 +1,4 @@
-﻿namespace AetherFlow.Framework.Tests.Support.Interfaces
+﻿namespace AetherFlow.Framework.Testing.Interfaces
 {
     public interface ISpecification
     {

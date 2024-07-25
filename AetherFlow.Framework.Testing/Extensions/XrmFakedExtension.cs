@@ -2,7 +2,7 @@
 using AetherFlow.Framework.Interfaces;
 using Microsoft.Xrm.Sdk;
 
-namespace AetherFlow.Framework.Tests.Support.SpecificationExtensions
+namespace AetherFlow.Framework.Testing.Extensions
 {
     public static class XrmFakedExtension
     {

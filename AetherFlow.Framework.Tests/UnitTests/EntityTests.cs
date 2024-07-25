@@ -1,6 +1,7 @@
-﻿using AetherFlow.Framework.Tests.Setup.Interfaces.DataAccess;
+﻿using AetherFlow.Framework.Testing;
+using AetherFlow.Framework.Testing.Extensions;
+using AetherFlow.Framework.Tests.Setup.Interfaces.DataAccess;
 using AetherFlow.Framework.Tests.Setup.Models;
-using AetherFlow.Framework.Tests.Support.SpecificationExtensions;
 using NUnit.Framework;
 using System;
 using System.Linq;

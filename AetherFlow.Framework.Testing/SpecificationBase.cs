@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using AetherFlow.Framework.Tests.Support.Interfaces;
+using AetherFlow.Framework.Testing.Interfaces;
 
-namespace AetherFlow.Framework.Tests
+namespace AetherFlow.Framework.Testing
 {
     public abstract class SpecificationBase : ISpecification, IDisposable
     {
