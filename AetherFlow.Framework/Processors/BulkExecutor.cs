@@ -10,7 +10,6 @@ namespace AetherFlow.Framework.Processors
     public class BulkExecutor : IBulkExecutor
     {
         private int _batchSize = 2000;
-        private readonly Dictionary<OrganizationRequest, string> _errors = new Dictionary<OrganizationRequest, string>();
         private readonly List<OrganizationRequest> _requests = new List<OrganizationRequest>();
         private readonly IOrganizationService _service;
 
@@ -19,13 +18,10 @@ namespace AetherFlow.Framework.Processors
             _service = service;
         }
 
-        public ReadOnlyDictionary<OrganizationRequest, string> GetErrors()
-            => new ReadOnlyDictionary<OrganizationRequest, string>(_errors);
-
         public void AddRequest(OrganizationRequest request) 
             => _requests.Add(request);
         
-        public void AddRequests(IList<OrganizationRequest> requests) 
+        public void AddRequests(OrganizationRequest[] requests) 
             => _requests.AddRange(requests);
 
         public void SetBatchSize(int batchSize)
@@ -34,8 +30,9 @@ namespace AetherFlow.Framework.Processors
         public int Count() 
             => _requests.Count;
 
-        public void Execute()
+        public ReadOnlyDictionary<OrganizationRequest, string> Execute()
         {
+            var errors = new Dictionary<OrganizationRequest, string>();
             var moreRecords = Count() > 0;
             var count = 0;
 
@@ -65,12 +62,18 @@ namespace AetherFlow.Framework.Processors
                 // Identify failed requests
                 foreach (var item in response.Responses.Where(item => item.Fault != null))
                 {
-                    _errors.Add(
+                    errors.Add(
                         request.Requests[item.RequestIndex],
                         item.Fault.Message
                     );
                 }
             }
+
+            // Reset the variables to default
+            _requests.Clear();
+            _batchSize = 2000;
+
+            return new ReadOnlyDictionary<OrganizationRequest, string>(errors);
         }
     }
 }

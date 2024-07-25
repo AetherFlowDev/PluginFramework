@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AetherFlow.FakeXrmEasy.Plugins;
-using AetherFlow.Framework.Testing;
+﻿using AetherFlow.Framework.Testing;
 using AetherFlow.Framework.Testing.Extensions;
 using AetherFlow.Xml.Framework.Core.Interfaces;
 using Microsoft.Xrm.Sdk;

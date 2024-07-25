@@ -298,5 +298,21 @@ namespace AetherFlow.Framework.Tests.UnitTests
                 Is.EqualTo(expected)
             );
         }
+
+        [Test]
+        public void EnsureCanExportEntity()
+        {
+            _contact.StateCode = Contact.Choices.StateCode.Inactive;
+            var entity = _contact.Export();
+            _contact.Save();
+            
+            Assert.That(entity, Is.Not.Null);
+            Assert.That(entity.LogicalName, Is.EqualTo(Contact.LogicalName));
+            Assert.That(entity.Id, Is.EqualTo(_contact.Id ?? Guid.Empty));
+            Assert.That(entity.Attributes.ContainsKey(Contact.Fields.FirstName), Is.True);
+            Assert.That(entity.Attributes[Contact.Fields.FirstName], Is.EqualTo(_contact.FirstName));
+            Assert.That(entity.Attributes.ContainsKey(Contact.Fields.StateCode), Is.True);
+            Assert.That(((OptionSetValue)entity.Attributes[Contact.Fields.StateCode]).Value, Is.EqualTo((int)_contact.StateCode));
+        }
     }
 }

@@ -176,5 +176,18 @@ namespace AetherFlow.Framework
             // Return the create object, this can then be bulk updated
             return new CreateRequest { Target = GetUpdatedEntity() };
         }
+
+        /// <summary>
+        /// Exports an entity object from an EntityBase reference
+        /// </summary>
+        /// <returns>An entity object</returns>
+        public Entity Export()
+        {
+            var entity = new Entity(LogicalName, EntityGuid ?? Guid.Empty);
+            foreach (var attribute in Values)
+                entity[attribute.Key] = attribute.Value;
+            
+            return entity;
+        }
     }
 }

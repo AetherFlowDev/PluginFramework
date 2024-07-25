@@ -13,6 +13,7 @@ namespace AetherFlow.Framework.Tests.Setup.Plugins
                 .FromAssembly(GetType().Assembly)
                 .LoadDependencies("AetherFlow.Framework.Tests.Setup.Interfaces")
                 .UseSecureConfig<ContactPluginConfig>()
-                .RunIf<UpdateTargetContactAction>(context => context.MessageName == "Create");
+                .RunIf<UpdateTargetContactAction>(context => context.MessageName == "Create")
+                .RunIf<ThrowsException>(context => context.MessageName == "Update");
     }
 }

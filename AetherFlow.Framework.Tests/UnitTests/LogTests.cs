@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using AetherFlow.Framework.Configuration;
 using AetherFlow.Framework.Interfaces;
 using AetherFlow.Framework.Testing;
@@ -26,8 +25,6 @@ namespace AetherFlow.Framework.Tests.UnitTests
         private string _tracingLevel;
         private string _message;
         private string _exception;
-
-
         public override void Arrange()
         {
             var mockTracingService = new Mock<ITracingService>();
@@ -91,6 +88,15 @@ namespace AetherFlow.Framework.Tests.UnitTests
             Assert.That(_tracingLevel, Is.EqualTo(level));
             Assert.That(_message, Is.EqualTo(message));
             Assert.That(_exception, Is.EqualTo("System.Exception: " + message + " Exception ----> "));
+        }
+
+        [Test]
+        public void EnsureInnerExceptionLogged() {
+            var exception = new Exception("Outer Exception", new Exception("Inner Exception"));
+            _log.Error("EnsureInnerExceptionLogged", exception);
+
+            Assert.That(_message, Is.EqualTo("EnsureInnerExceptionLogged"));
+            Assert.That(_exception, Is.EqualTo("--- End of inner exception stack trace ---"));
         }
 
         static object CallMethod(object obj, string methodName, object[] parameters)
