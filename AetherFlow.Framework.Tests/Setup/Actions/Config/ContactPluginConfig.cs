@@ -4,7 +4,7 @@ using AetherFlow.Framework.Interfaces;
 namespace AetherFlow.Framework.Tests.Setup.Actions.Config
 {
     [DataContract]
-    public class ContactPluginConfig : IConfiguration
+    public class ContactPluginConfig
     {
         [DataMember]
         public string FirstName { get; set; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using AetherFlow.Framework.Interfaces;
 
 namespace AetherFlow.Framework
@@ -159,7 +160,7 @@ namespace AetherFlow.Framework
             // We want to get a singleton of the instance if an interface,
             // however for a concrete class, we want to return a new instance 
             // every time.  We don't want to duplicate configuration - so we 
-            // exclude classes assignable from IConfiguration from this rule.
+            // exclude classes that are DataMembers from this rule.
             if (ShouldUseSingleton(typeof(T)))
             {
                 // This is an interface or configuration, so attempt to get
@@ -220,7 +221,7 @@ namespace AetherFlow.Framework
         }
 
         private bool ShouldUseSingleton(Type type) =>
-            type.IsInterface || typeof(IConfiguration).IsAssignableFrom(type);
+            type.IsInterface || type.GetCustomAttributes(typeof(DataContractAttribute), true).Length > 0;
 
         private Type GetImplementationForGenericType(Type type) =>
             _implementations

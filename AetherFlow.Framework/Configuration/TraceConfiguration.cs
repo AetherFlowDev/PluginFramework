@@ -1,8 +1,10 @@
 ﻿using AetherFlow.Framework.Interfaces;
+using System.Runtime.Serialization;
 
 namespace AetherFlow.Framework.Configuration
 {
-    public class TraceConfiguration : IConfiguration
+    [DataContract]
+    public class TraceConfiguration
     {
         public bool ShouldLogInfo { get; set; } = false;
         public bool ShouldLogDebug { get; set; } = true;
