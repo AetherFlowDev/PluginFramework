@@ -8,7 +8,30 @@
     <TargetFramework>net462</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Authors>AetherFlowDev</Authors>
+    <Title>AetherFlow Framework</Title>
+    <Description>The AetherFlow Plugin Framework is specifically designed to support developers in creating robust and maintainable Dataverse Plugins</Description>
+    <PackageProjectUrl>https://aetherflow.dev</PackageProjectUrl>
+    <PackageIcon>AetherFlow-Logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/AetherFlowDev/PluginFramework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Dataverse, AetherFlow</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\AetherFlow-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Security" />
