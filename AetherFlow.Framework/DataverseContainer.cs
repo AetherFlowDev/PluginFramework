@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using AetherFlow.Framework.Attributes;
 using AetherFlow.Framework.Interfaces;
 
 namespace AetherFlow.Framework
@@ -235,6 +236,7 @@ namespace AetherFlow.Framework
                 var implementation = GetImplementationForGenericType(type);
                 if (implementation == null) return null;
                 var gService = _services.FirstOrDefault(implementation.IsInstanceOfType);
+                if (gService != null && gService.GetType().GetCustomAttributes(typeof(UniqueAttribute), true).Length > 0) return null;
                 if (gService != null) return gService;
             }
             else
@@ -243,6 +245,7 @@ namespace AetherFlow.Framework
                 // Get the service from the services list if
                 // and return it, but only if it exists
                 var service = _services.FirstOrDefault(type.IsInstanceOfType);
+                if (service != null && service.GetType().GetCustomAttributes(typeof(UniqueAttribute), true).Length > 0) return null;
                 if (service != null) return service;
             }
 

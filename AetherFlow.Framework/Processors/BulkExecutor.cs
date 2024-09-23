@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using AetherFlow.Framework.Attributes;
 using AetherFlow.Framework.Interfaces;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 
 namespace AetherFlow.Framework.Processors
 {
+    [Unique]
     public class BulkExecutor : IBulkExecutor
     {
         private int _batchSize = 2000;
