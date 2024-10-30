@@ -3,8 +3,8 @@ using AetherFlow.Framework.Tests.Setup.Interfaces;
 
 namespace AetherFlow.Framework.Tests.Setup.Implementations
 {
-    [Mock]
-    public class ExampleIntegrationMock : IExampleIntegration
+    [Variant("Two")]
+    public class ExampleIntegrationVariantTwo : IExampleIntegration
     {
         public bool DoAction() => true;
     }

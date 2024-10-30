@@ -2,7 +2,7 @@
 
 namespace AetherFlow.Framework.Tests.Setup.Implementations
 {
-    public class ExampleIntegrationBase : IExampleIntegration
+    public abstract class ExampleIntegrationBase : IExampleIntegration
     {
         public bool DoAction() => true;
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AetherFlow.Framework.Attributes;
 using AetherFlow.Framework.Interfaces;
 
 namespace AetherFlow.Framework
@@ -10,6 +11,8 @@ namespace AetherFlow.Framework
     {
         private readonly IDictionary<Type, List<Type>> _implementations = new Dictionary<Type, List<Type>>();
         private readonly IList<object> _services = new List<object>();
+        private readonly IList<Type> _toMock = new List<Type>();
+        private readonly IDictionary<Type, string> _useVariant = new Dictionary<Type, string>();
 
         public void Initialize(Assembly assembly, string rootNamespace) 
             => Initialize(assembly, new[] { rootNamespace });
@@ -54,12 +57,12 @@ namespace AetherFlow.Framework
                 }
 
                 // Get the implementation of the interface
-                var implementation = GetImplementationOf(assembly, type);
+                var allImplementations = GetImplementationsOf(assembly, type);
 
                 // If we have an implementation, add it to the dictionary
                 // We can use this to build it later should it be needed!
-                if (implementation != null)
-                    _implementations.Add(type, new List<Type> { implementation });
+                if (allImplementations != null)
+                    _implementations.Add(type, allImplementations);
             }
         }
 
@@ -76,10 +79,6 @@ namespace AetherFlow.Framework
                 .Where(t => 
                     !t.IsInterface 
                     && !t.IsAbstract
-                    && !t.Name.ToLower().StartsWith("mock")
-                    && !t.Name.ToLower().EndsWith("mock")
-                    && !t.Name.ToLower().StartsWith("base")
-                    && !t.Name.ToLower().EndsWith("base")
                 )
                 .SelectMany(t => t.GetInterfaces(), (t, @interface) => new { Type = t, Interface = @interface })
                 .Where(t => t.Interface.IsGenericType)
@@ -95,23 +94,20 @@ namespace AetherFlow.Framework
         /// <param name="assembly"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        private Type GetImplementationOf(Assembly assembly, Type type) => 
+        private List<Type> GetImplementationsOf(Assembly assembly, Type type) => 
             assembly
                 .GetTypes()
                     .Where(t =>
                         t.Namespace != null
                         && t.IsClass
                         && !t.IsAbstract
-                        && !t.Name.ToLower().StartsWith("mock")
-                        && !t.Name.ToLower().EndsWith("mock")
-                        && !t.Name.ToLower().StartsWith("base")
-                        && !t.Name.ToLower().EndsWith("base")
                     )
-                    .FirstOrDefault(
+                    .Where(
                         t => type.IsGenericTypeDefinition
                             ? type.MakeGenericType(t.GetGenericArguments()) == t
                             : type.IsAssignableFrom(t)
-                    );
+                    )
+                    .ToList();
 
         /// <summary>
         /// Get the best constructor for an implementation, based on the
@@ -174,6 +170,20 @@ namespace AetherFlow.Framework
             return (T)Get(typeof(T));
         }
 
+        public void UseMock<T>()
+        {
+            _toMock.Add(typeof(T));
+        }
+
+        public void UseVariant<T>(string variant)
+        {
+            var type = typeof(T);
+            if (!_useVariant.ContainsKey(type))
+                _useVariant.Add(type, variant);
+            else
+                _useVariant[type] = variant;
+        }
+
         private object Get(Type type)
         {
             // Store the type of the implementation.  We will need this to understand
@@ -197,11 +207,13 @@ namespace AetherFlow.Framework
                     throw new InvalidOperationException($"No implementation found for {type.FullName}");
 
                 // Get the implementation
-                implementation = type.IsGenericType ? GetImplementationForGenericType(type) : _implementations[type].First();
+                implementation = type.IsGenericType 
+                    ? GetImplementationForGenericType(type)
+                    : GetImplementation(type);
             } 
             else
             {
-                // The implementation IS the type thats being passed
+                // The implementation IS the type that's being passed
                 // as this is not an interface.
                 implementation = type;
             }
@@ -222,10 +234,83 @@ namespace AetherFlow.Framework
         private bool ShouldUseSingleton(Type type) =>
             type.IsInterface || typeof(IConfiguration).IsAssignableFrom(type);
 
-        private Type GetImplementationForGenericType(Type type) =>
-            _implementations
+        private Type GetImplementation(Type type)
+        {
+            var useMock = _toMock.Contains(type);
+            var useVariant = _useVariant.ContainsKey(type) ? _useVariant[type] : null;
+            var implementations = _implementations.Where(a => a.Key == type).SelectMany(a => a.Value).ToList();
+
+            // We might have a situation, where we don't have any implementations, but we do
+            // have a service... this is a special case, where we should return the service
+            if (implementations.Count == 0 && _services.Any(type.IsInstanceOfType))
+                return _services.First(type.IsInstanceOfType).GetType();
+
+            // Now lets handle mocks!
+            if (useMock)
+            {
+                // Return the first implementation that has a Mock Attribute
+                return implementations
+                    .FirstOrDefault(impl => impl.GetCustomAttributes(typeof(MockAttribute), true).Any());
+            }
+
+            if (useVariant != null)
+            {
+                // Return the first implementation that has a Variant Attribute with the specified name
+                return implementations
+                    .FirstOrDefault(impl =>
+                        impl.GetCustomAttributes(typeof(VariantAttribute), true)
+                            .OfType<VariantAttribute>()
+                            .Any(attr => attr.Name == useVariant));
+            }
+
+            // Else - return the first "default" implementation, or if only a single implementation that is NOT a mock
+            // return that instead.
+            var main = implementations.FirstOrDefault(impl => impl.GetCustomAttributes(typeof(MainAttribute), true).Any());
+            if (main != null) return main;
+
+            // Check for non-mock implementations
+            var nonMock = implementations.Where(impl => !impl.GetCustomAttributes(typeof(MockAttribute), true).Any()).ToList();
+            if (nonMock.Count == 1) return nonMock.First();
+            throw new InvalidOperationException($"No suitable implementation found for type {type.FullName}. Please ensure there is a main implementation or a single non-mock implementation.");
+        }
+
+        private Type GetImplementationForGenericType(Type type)
+        {
+            var useMock = _toMock.Contains(type);
+            var useVariant = _useVariant.ContainsKey(type);
+
+            // Find all implementations for the specified generic type
+            var implementations = _implementations
                 .First(x => x.Key.FullName == type.Namespace + "." + type.Name).Value
-                .FirstOrDefault(a => a.GetInterfaces().Any(t => t == type));
+                .Where(a => a.GetInterfaces().Any(t => t == type));
+
+            if (useMock)
+            {
+                // Return the first implementation that has a Mock Attribute
+                return implementations
+                    .FirstOrDefault(impl => impl.GetCustomAttributes(typeof(MockAttribute), true).Any());
+            }
+
+            if (useVariant)
+            {
+                var variantName = _useVariant[type];
+                // Return the first implementation that has a Variant Attribute with the specified name
+                return implementations
+                    .FirstOrDefault(impl =>
+                        impl.GetCustomAttributes(typeof(VariantAttribute), true)
+                            .OfType<VariantAttribute>()
+                            .Any(attr => attr.Name == variantName));
+            }
+
+            // Else - return the first "default" implementation, or if only a single implementation that is NOT a mock
+            // return that instead.
+            return implementations
+                .FirstOrDefault(impl =>
+                    impl.GetCustomAttributes(typeof(MainAttribute), true).Any() ||
+                    !impl.GetCustomAttributes(typeof(MockAttribute), true).Any());
+        }
+
+
 
         private object GetServiceSingleton(Type type)
         {
@@ -236,11 +321,19 @@ namespace AetherFlow.Framework
                 var gService = _services.FirstOrDefault(implementation.IsInstanceOfType);
                 if (gService != null) return gService;
             }
-            else
+            else if (type.IsInterface)
             {
                 // Not a generic
                 // Get the service from the services list if
                 // and return it, but only if it exists
+                var implementation = GetImplementation(type);
+                var service = _services.FirstOrDefault(implementation.IsInstanceOfType);
+                if (service != null) return service;
+            }
+            else
+            {
+                // Not an interface, so see if we have a copy
+                // of the service in the services list
                 var service = _services.FirstOrDefault(type.IsInstanceOfType);
                 if (service != null) return service;
             }

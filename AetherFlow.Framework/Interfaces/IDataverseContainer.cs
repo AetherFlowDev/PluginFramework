@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace AetherFlow.Framework.Interfaces
 {
@@ -40,5 +41,9 @@ namespace AetherFlow.Framework.Interfaces
         /// <typeparam name="T">Interface to return an implementation of</typeparam>
         /// <returns></returns>
         T Get<T>();
+
+        void UseMock<T>();
+
+        void UseVariant<T>(string variant);
     }
 }
