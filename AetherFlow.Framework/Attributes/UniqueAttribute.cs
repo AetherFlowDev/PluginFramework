@@ -2,6 +2,6 @@
 
 namespace AetherFlow.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class UniqueAttribute : Attribute { }
 }

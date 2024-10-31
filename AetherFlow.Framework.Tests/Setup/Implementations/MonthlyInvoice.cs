@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AetherFlow.Framework.Attributes;
 
 namespace AetherFlow.Framework.Tests.Setup.Implementations
 {
+    [Variant("Monthly")]
     public class MonthlyInvoice : Invoice
     {
         public override double GetDiscount()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using AetherFlow.Framework.Attributes;
 using AetherFlow.Framework.Interfaces;
 
@@ -232,7 +233,7 @@ namespace AetherFlow.Framework
         }
 
         private bool ShouldUseSingleton(Type type) =>
-            type.IsInterface || typeof(IConfiguration).IsAssignableFrom(type);
+            type.IsInterface || type.GetCustomAttributes(typeof(DataContractAttribute), true).Length > 0;
 
         private Type GetImplementation(Type type)
         {
@@ -319,6 +320,7 @@ namespace AetherFlow.Framework
                 var implementation = GetImplementationForGenericType(type);
                 if (implementation == null) return null;
                 var gService = _services.FirstOrDefault(implementation.IsInstanceOfType);
+                if (gService != null && gService.GetType().GetCustomAttributes(typeof(UniqueAttribute), true).Length > 0) return null;
                 if (gService != null) return gService;
             }
             else if (type.IsInterface)
@@ -328,6 +330,7 @@ namespace AetherFlow.Framework
                 // and return it, but only if it exists
                 var implementation = GetImplementation(type);
                 var service = _services.FirstOrDefault(implementation.IsInstanceOfType);
+                if (service != null && service.GetType().GetCustomAttributes(typeof(UniqueAttribute), true).Length > 0) return null;
                 if (service != null) return service;
             }
             else
